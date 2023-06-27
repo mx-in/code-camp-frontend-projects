@@ -1,10 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import './index.css'
-import {
-  RouterProvider,
-  createBrowserRouter,
-} from 'react-router-dom'
+import { RouterProvider, createBrowserRouter } from 'react-router-dom'
 import Drum from './drum'
 import Root from './routers/root'
 
@@ -16,23 +13,25 @@ const router = createBrowserRouter([
   {
     path: '/',
     element: <Root />,
-    errorElement: <ErrorPage />,
+    errorElement: <ErrorPage />
   },
   {
     path: 'drum',
-    element: <Drum />,
-  }, {
-    path: 'markdown',
-    element: <MarkdownPreview />,
-  }, {
-    path: 'quote',
-    element: <AppWrapper />,
+    element: <Drum />
   },
+  {
+    path: 'markdown',
+    element: <MarkdownPreview />
+  },
+  {
+    path: 'quote',
+    element: <AppWrapper />
+  }
 ])
 
 const root = ReactDOM.createRoot(document.getElementById('root'))
 root.render(
   <React.StrictMode>
     <RouterProvider router={router} />
-  </React.StrictMode>,
+  </React.StrictMode>
 )

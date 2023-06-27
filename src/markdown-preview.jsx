@@ -1,7 +1,7 @@
-import { marked } from 'marked';
-import React, { useState } from 'react';
-import Prism from 'prismjs';
-import './markdown-preview.scss';
+import { marked } from 'marked'
+import React, { useState } from 'react'
+import Prism from 'prismjs'
+import './markdown-preview.scss'
 
 const placeholder = `# Welcome to my React Markdown Previewer!
 
@@ -44,41 +44,43 @@ And here. | Okay. | I think we get it.
 1. Use just 1s if you want!
 1. And last but not least, let's not forget embedded images:
 
-![freeCodeCamp Logo](https://cdn.freecodecamp.org/testable-projects-fcc/images/fcc_secondary.svg)`;
+![freeCodeCamp Logo](https://cdn.freecodecamp.org/testable-projects-fcc/images/fcc_secondary.svg)`
 
 function MarkdownPreview() {
+  marked.setOptions({
+    breaks: true,
+    highlight(code) {
+      return Prism.highlight(code, Prism.languages.javascript, 'javascript')
+    }
+  })
 
-	marked.setOptions({
-		breaks: true,
-		highlight: function (code) {
-			return Prism.highlight(code, Prism.languages.javascript, 'javascript');
-		}
-	});
+  function debounce(func, time, context) {
+    const t = time ?? 1000
+    let timer
+    return function (...args) {
+      clearTimeout(timer)
+      timer = setTimeout(() => {
+        func && func.apply(context, args)
+      }, t)
+    }
+  }
 
-	function debounce(func, time) {
-		const t = time ?? 1000
-		let timer;
-		return function (...args) {
-			clearTimeout(timer)
-			timer = setTimeout(() => {
-				func && func.apply(this, args)
-			}, t);
-		}
-	}
+  const [text, setText] = useState(placeholder)
+  const debounceTextSetter = debounce(setText, 500, this)
 
-	const [text, setText] = useState(placeholder);
-	const debounceTextSetter = debounce(setText, 500)
+  const handleInput = e => {
+    debounceTextSetter(e.target.value)
+  }
 
-	const handleInput = (e) => {
-		debounceTextSetter(e.target.value)
-	}
-
-	return (
-		<div>
-			<textarea id="editor" defaultValue={text} onInput={handleInput} />
-			<div id="preview" dangerouslySetInnerHTML={{ __html: marked.parse(text) }} />
-		</div>
-	);
+  return (
+    <div>
+      <textarea id="editor" defaultValue={text} onInput={handleInput} />
+      <div
+        id="preview"
+        dangerouslySetInnerHTML={{ __html: marked.parse(text) }}
+      />
+    </div>
+  )
 }
 
 export default MarkdownPreview
