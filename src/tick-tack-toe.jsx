@@ -222,7 +222,13 @@ function TickTackToeGame() {
           <div className="c-group">
             <span>history: </span>
             {gameHistory.map((_, i) => (
-              <button onClick={() => onSteptBtnClick(i)} key={i}>
+              <button
+                className={
+                  i === historyIdx ? 'selected-history-btn' : 'history-btn'
+                }
+                onClick={() => onSteptBtnClick(i)}
+                key={i}
+              >
                 #{i}
               </button>
             ))}
