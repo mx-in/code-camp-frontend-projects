@@ -1,17 +1,7 @@
 import { useState } from 'react'
-import './tick-tack-toe.scss'
-
-const signA = '💰'
-const signB = '💎'
-const signEmpty = '◯'
-
-const GameStatus = {
-  Playing: 0,
-  Over: 1,
-  Ready: 2,
-  Unready: 3,
-  History: 4
-}
+import './index.scss'
+import { GameStatus, SignA, SignB, SignEmpty } from './consts.js'
+import { getWinner, statusTxt } from './utils.js'
 
 function Square(props) {
   return (
@@ -24,101 +14,14 @@ function Square(props) {
   )
 }
 
-function statusTxt(status, curSign, winner, historyIdx) {
-  switch (status) {
-    case GameStatus.Ready:
-    case GameStatus.Playing:
-      return curSign && `${curSign} turn to play`
-    case GameStatus.Over: {
-      if (winner) {
-        if (winner === signEmpty) {
-          return 'draw, press restart to play again'
-        } else {
-          return `${winner} win, press restart to play again`
-        }
-      }
-      break
-    }
-    case GameStatus.Unready:
-      return 'please choose the sign which will be first to play'
-    case GameStatus.History:
-      return `now at step ${historyIdx}`
-    default:
-      return 'unknown status'
-  }
-}
-
-function getWinner(squares) {
-  const checkMatrix = [
-    [4, 9, 2],
-    [3, 5, 7],
-    [8, 1, 6]
-  ]
-
-  let winner = signEmpty
-  let winnerPositions = []
-
-  for (let i = 0; i < checkMatrix.length; i++) {
-    const [h1, h2, h3] = checkMatrix[i]
-    if (
-      squares[h1 - 1] !== signEmpty &&
-      squares[h1 - 1] === squares[h2 - 1] &&
-      squares[h1 - 1] === squares[h3 - 1]
-    ) {
-      winnerPositions = [h1 - 1, h2 - 1, h3 - 1]
-      winner = squares[h1 - 1]
-    }
-
-    const v1 = checkMatrix[0][i] - 1
-    const v2 = checkMatrix[1][i] - 1
-    const v3 = checkMatrix[2][i] - 1
-    if (
-      squares[v1] !== signEmpty &&
-      squares[v1] === squares[v2] &&
-      squares[v1] === squares[v3]
-    ) {
-      winnerPositions = [v1, v2, v3]
-      winner = squares[v1]
-    }
-  }
-
-  const diagonals = [0, 1, 2]
-  const d1 = diagonals.map(i => checkMatrix[i][i] - 1)
-  const [d1_1, d1_2, d1_3] = d1
-  if (
-    squares[d1_1] !== signEmpty &&
-    squares[d1_1] === squares[d1_2] &&
-    squares[d1_1] === squares[d1_3]
-  ) {
-    winnerPositions = [d1_1, d1_2, d1_3]
-    winner = squares[d1_1]
-  }
-
-  const d2 = diagonals.map(i => checkMatrix[i][2 - i] - 1)
-  const [d2_1, d2_2, d2_3] = d2
-  if (
-    squares[d2_1] !== signEmpty &&
-    squares[d2_1] === squares[d2_2] &&
-    squares[d2_1] === squares[d2_3]
-  ) {
-    winnerPositions = [d2_1, d2_2, d2_3]
-    winner = squares[d2_1]
-  }
-
-  return {
-    winner,
-    winnerPositions: winnerPositions.map(i => i + 1)
-  }
-}
-
 function TickTackToeGame() {
-  const [squares, setSquares] = useState(Array(9).fill(signEmpty))
-  const [curSign, setCurSign] = useState(signEmpty)
-  const [startSign, setStartSign] = useState(signEmpty)
+  const [squares, setSquares] = useState(Array(9).fill(SignEmpty))
+  const [curSign, setCurSign] = useState(SignEmpty)
+  const [startSign, setStartSign] = useState(SignEmpty)
   const [status, setStatus] = useState(GameStatus.Unready)
   const [historyIdx, setHistoryIdx] = useState(0)
   const [gameHistory, setGameHistory] = useState([squares.slice()])
-  const [winner, setWinner] = useState(signEmpty)
+  const [winner, setWinner] = useState(SignEmpty)
   const [winnerPostions, setWinnerPostions] = useState([])
 
   const onClick = i => {
@@ -128,7 +31,7 @@ function TickTackToeGame() {
       (status === GameStatus.Ready ||
         status === GameStatus.Playing ||
         isCheckingHistory) &&
-      value === signEmpty
+      value === SignEmpty
 
     if (!isClickEnable) {
       return
@@ -138,13 +41,13 @@ function TickTackToeGame() {
     setSquares(newSquares)
     status !== GameStatus.Playing && setStatus(GameStatus.Playing)
 
-    curSign === signA ? setCurSign(signB) : setCurSign(signA)
+    curSign === SignA ? setCurSign(SignB) : setCurSign(SignA)
     newSquares[i] = curSign
 
     const { winner, winnerPositions } = getWinner(newSquares)
     setWinner(winner)
     setWinnerPostions(winnerPositions)
-    winner !== signEmpty && setStatus(GameStatus.Over)
+    winner !== SignEmpty && setStatus(GameStatus.Over)
 
     const history = isCheckingHistory
       ? gameHistory.splice(0, historyIdx + 1)
@@ -158,11 +61,11 @@ function TickTackToeGame() {
   }
 
   const initialGame = () => {
-    setCurSign(signEmpty)
+    setCurSign(SignEmpty)
     setStatus(GameStatus.Unready)
-    setSquares(Array(9).fill(signEmpty))
+    setSquares(Array(9).fill(SignEmpty))
     setGameHistory([squares])
-    setWinner(signEmpty)
+    setWinner(SignEmpty)
     setWinnerPostions([])
   }
 
@@ -175,7 +78,7 @@ function TickTackToeGame() {
 
   const moveToHistory = i => {
     setSquares(gameHistory[i].slice())
-    const secondStarerSign = startSign === signA ? signB : signA
+    const secondStarerSign = startSign === SignA ? SignB : SignA
     setCurSign(i % 2 === 0 ? startSign : secondStarerSign)
     setStatus(GameStatus.History)
     setHistoryIdx(i)
@@ -202,11 +105,11 @@ function TickTackToeGame() {
       )}
       <div className="container">
         <div className="c-group">
-          {curSign === signEmpty ? (
+          {curSign === SignEmpty ? (
             <>
               <span>choose: </span>
-              <button onClick={() => setStarter(signA)}>{signA}</button>
-              <button onClick={() => setStarter(signB)}>{signB}</button>
+              <button onClick={() => setStarter(SignA)}>{SignA}</button>
+              <button onClick={() => setStarter(SignB)}>{SignB}</button>
             </>
           ) : (
             <span>start with {startSign}</span>
