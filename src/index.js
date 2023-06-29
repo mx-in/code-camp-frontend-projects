@@ -8,6 +8,7 @@ import Root from './routers/root'
 import ErrorPage from './error-page'
 import MarkdownPreview from './markdown-preview'
 import AppWrapper from './quote'
+import TickTackToeGame from './tick-tack-toe'
 
 const router = createBrowserRouter([
   {
@@ -26,6 +27,10 @@ const router = createBrowserRouter([
   {
     path: 'quote',
     element: <AppWrapper />
+  },
+  {
+    path: 'tick-tack-toe',
+    element: <TickTackToeGame />
   }
 ])
 

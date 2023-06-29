@@ -15,7 +15,7 @@ export default function Root() {
               <a href="quote">quote</a>
             </li>
             <li>
-              <a href={'contacts/2'}>Your Friend</a>
+              <a href="tick-tack-toe">tick tack toe</a>
             </li>
           </ul>
         </nav>
