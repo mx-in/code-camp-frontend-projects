@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import './index.scss'
 import { GameStatus, SignA, SignB, SignEmpty } from './consts.js'
-import { getWinner, statusTxt } from './utils.js'
+import { getNextStep, getWinner, statusTxt } from './utils.js'
 
 function Square(props) {
   return (
@@ -23,8 +23,18 @@ function TickTackToeGame() {
   const [gameHistory, setGameHistory] = useState([squares.slice()])
   const [winner, setWinner] = useState(SignEmpty)
   const [winnerPostions, setWinnerPostions] = useState([])
+  const [lastPosition, setLastPosition] = useState(0)
 
+  const initialGame = () => {
+    setCurSign(SignEmpty)
+    setStatus(GameStatus.Unready)
+    setSquares(Array(9).fill(SignEmpty))
+    setGameHistory([squares])
+    setWinner(SignEmpty)
+    setWinnerPostions([])
+  }
   const onClick = i => {
+    setLastPosition(i)
     const value = squares[i]
     const isCheckingHistory = status === GameStatus.History
     const isClickEnable =
@@ -41,8 +51,9 @@ function TickTackToeGame() {
     setSquares(newSquares)
     status !== GameStatus.Playing && setStatus(GameStatus.Playing)
 
-    curSign === SignA ? setCurSign(SignB) : setCurSign(SignA)
+    const nextSign = curSign === SignA ? SignB : SignA
     newSquares[i] = curSign
+    setCurSign(nextSign)
 
     const { winner, winnerPositions } = getWinner(newSquares)
     setWinner(winner)
@@ -60,14 +71,14 @@ function TickTackToeGame() {
     history.length > 9 && setStatus(GameStatus.Over)
   }
 
-  const initialGame = () => {
-    setCurSign(SignEmpty)
-    setStatus(GameStatus.Unready)
-    setSquares(Array(9).fill(SignEmpty))
-    setGameHistory([squares])
-    setWinner(SignEmpty)
-    setWinnerPostions([])
-  }
+  useEffect(() => {
+    if (curSign !== startSign) {
+      const nextStep = getNextStep(squares, lastPosition, curSign)
+      if (nextStep >= 0) {
+        onClick(nextStep)
+      }
+    }
+  }, [curSign])
 
   const setStarter = player => {
     initialGame()
@@ -97,53 +108,60 @@ function TickTackToeGame() {
   }
 
   return (
-    <main>
-      <h1>Tick Tack Toe</h1>
-      <h3>{statusTxt(status, curSign, winner, historyIdx)}</h3>
-      {!!winnerPostions.length && status !== GameStatus.History && (
-        <h3>winner selected position: {winnerPostions.map(i => `${i} `)}</h3>
-      )}
-      <div className="container">
-        <div className="c-group">
-          {curSign === SignEmpty ? (
-            <>
-              <span>choose: </span>
-              <button onClick={() => setStarter(SignA)}>{SignA}</button>
-              <button onClick={() => setStarter(SignB)}>{SignB}</button>
-            </>
-          ) : (
-            <span>start with {startSign}</span>
-          )}
-        </div>
-        <div className="c-group">
-          <span>operations: </span>
-          <button onClick={onPreBtnClick}>pre</button>
-          <button onClick={onNextBtnClick}>next</button>
-          <button onClick={initialGame}>restart</button>
-        </div>
-        {gameHistory.length > 1 && (
+    <>
+      <main>
+        <h1>Tick Tack Toe</h1>
+        <h3>{statusTxt(status, curSign, winner, historyIdx)}</h3>
+        {!!winnerPostions.length && status !== GameStatus.History && (
+          <h3>winner selected position: {winnerPostions.map(i => `${i} `)}</h3>
+        )}
+        <div className="container">
           <div className="c-group">
-            <span>history: </span>
-            {gameHistory.map((_, i) => (
-              <button
-                className={
-                  i === historyIdx ? 'selected-history-btn' : 'history-btn'
-                }
-                onClick={() => onSteptBtnClick(i)}
+            {curSign === SignEmpty ? (
+              <>
+                <span>choose: </span>
+                <button onClick={() => setStarter(SignA)}>{SignA}</button>
+                <button onClick={() => setStarter(SignB)}>{SignB}</button>
+              </>
+            ) : (
+              <span>start with {startSign}</span>
+            )}
+          </div>
+          <div className="c-group">
+            <span>operations: </span>
+            <button onClick={onPreBtnClick}>pre</button>
+            <button onClick={onNextBtnClick}>next</button>
+            <button onClick={initialGame}>restart</button>
+          </div>
+          {gameHistory.length > 1 && (
+            <div className="c-group">
+              <span>history: </span>
+              {gameHistory.map((_, i) => (
+                <button
+                  className={
+                    i === historyIdx ? 'selected-history-btn' : 'history-btn'
+                  }
+                  onClick={() => onSteptBtnClick(i)}
+                  key={i}
+                >
+                  #{i}
+                </button>
+              ))}
+            </div>
+          )}
+          <div className="squares">
+            {squares.map((text, i) => (
+              <Square
                 key={i}
-              >
-                #{i}
-              </button>
+                index={i}
+                text={text}
+                onClick={() => onClick(i)}
+              />
             ))}
           </div>
-        )}
-        <div className="squares">
-          {squares.map((text, i) => (
-            <Square key={i} index={i} text={text} onClick={() => onClick(i)} />
-          ))}
         </div>
-      </div>
-    </main>
+      </main>
+    </>
   )
 }
 
