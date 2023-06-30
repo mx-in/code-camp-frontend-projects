@@ -72,13 +72,13 @@ function TickTackToeGame() {
   }
 
   useEffect(() => {
-    if (curSign !== startSign) {
+    if (curSign !== startSign && status === GameStatus.Playing) {
       const nextStep = getNextStep(squares, lastPosition, curSign)
       if (nextStep >= 0) {
         onClick(nextStep)
       }
     }
-  }, [curSign])
+  }, [curSign, status])
 
   const setStarter = player => {
     initialGame()
